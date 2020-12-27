@@ -1,4 +1,5 @@
 import requests
+import argparse
 import os
 from datetime import datetime
 import json
@@ -12,15 +13,16 @@ ACTIVITY_TYPE = 'Run'
 TOKEN = os.getenv('STRAVA_TOKEN')
 
 
-def auth():
+def auth(client_id, client_secret, code):
     # Make Strava auth API call with your 
     # client_code, client_secret and code
+    print('making request: post https://www.strava.com/oauth/token client_id={} secret={} code={}'.format(client_id, client_secret, code))
     response = requests.post(
                         url = 'https://www.strava.com/oauth/token',
                         data = {
-                                'client_id': <>,
-                                'client_secret': '<>',
-                                'code': '<>',
+                                'client_id': client_id,
+                                'client_secret': client_secret,
+                                'code': code,
                                 'grant_type': 'authorization_code'
                                 }
                     )#Save json response as a variable
@@ -42,8 +44,11 @@ def get_laps_of_last_run() -> list:
     url = "https://www.strava.com/api/v3/activities"
     access_token = strava_tokens['access_token']# Get first page of activities from Strava with all fields
     resp = requests.get(url + '?access_token=' + access_token)
+    if resp.status_code != 200:
+        print('Error! status={} msg={} url={}'.format(resp.status_code, resp.text, resp.url))
+        raise Exception(resp.text)
     r = resp.json()
-    print(r)
+
     runs = list()
     for a in r:
         activity_type = a.get('type')
@@ -62,8 +67,15 @@ def get_laps_of_last_run() -> list:
 
 
 
-
+    
 if __name__ == '__main__':
-    before = int(datetime(2020,12,25,0,0).timestamp())
-    # auth()
-    get_activities(before=before)
+ 
+    # create parser
+    parser = argparse.ArgumentParser()
+     
+    # add arguments to the parser
+    parser.add_argument("client_id")
+    parser.add_argument("client_secret")
+    parser.add_argument("code")
+    args = parser.parse_args() 
+    auth(args.client_id, args.client_secret, args.code)

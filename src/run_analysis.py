@@ -11,7 +11,7 @@ Z5 = (5, 7)
 Z6 = (4, 46)
 
 LABELS = ['Z1', 'Z2', 'Z3', 'Z4', 'Z5', 'Z6']
-
+COLORS = ['yellow', 'gray', 'blue', 'red', 'green', 'black']
 
 def convert_min_per_km_to_m_per_s(minutes: int, seconds: int):
     """
@@ -20,16 +20,25 @@ def convert_min_per_km_to_m_per_s(minutes: int, seconds: int):
     return 1000 / total_seconds
 
 
-def convert_m_per_s_to_min_per_km(mps: float):
+def convert_meters_per_second_to_min_per_km(mps: float):
     pass
 
 
-def analyze_laps(laps: list, plot: boolean = True):
-    mps = convert_min_per_km_to_m_per_s(minutes=z[0], seconds=z[1])
-    g.axhline(mps, label=label, c=c)
+def analyze_laps(laps: list, plot: bool = True):
+    """
+    Parameters:
+    laps: list
+        list of laps (average speed) of the last activity
+
+    """
     
-    if plot:    
-        plt.legend(labels)
+    if plot:
+        g = sns.scatterplot(x=range(0, len(laps)), y=laps)
+        for pace, label, color in zip([Z1,Z2,Z3,Z4,Z5,Z6], LABELS, COLORS):
+            mps = convert_min_per_km_to_m_per_s(pace[0], pace[1])
+            g.axhline(mps, label=label, c=color)
+
+        plt.legend(LABELS)
         plt.show()
 
 
